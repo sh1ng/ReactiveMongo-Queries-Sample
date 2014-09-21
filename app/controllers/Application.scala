@@ -21,12 +21,19 @@ object Application extends Controller {
   
   implicit val taskHandler = Macros.handler[Task]
   
-  case class Task(id: String, label: String, text: String, createdAt: DateTime, actionDate: DateTime)
+  case class Task(id: String, name: String, label: String, text: String, createdAt: DateTime, actionDate: DateTime)
 
-  def index = Action.async {
-    for{
-      tasks <- collection.find(BSONDocument(""->"")).sort(on[Task].sortAsc(_.actionDate)).cursor[Task].collect[List]()
-    } yield Ok(views.html.index(tasks))
+  def index = Action{
+    Ok(views.html.index())
   }
-
+  
+  def tasks(name: String) = Action.async {
+    for{
+      tasks <- collection.find(on[Task].eq(_.name, name)).sort(on[Task].sortAsc(_.actionDate)).cursor[Task].collect[List]()
+    } yield Ok(views.html.tasks(tasks))
+  }
+  
+  def createTask(name: String) = TODO
+  
+  def updateTask(id: String) = TODO
 }
