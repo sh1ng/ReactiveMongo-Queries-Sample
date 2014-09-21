@@ -4,9 +4,9 @@
 
 # Home page
 GET     /                           controllers.Application.index
-GET		/tasks						controllers.Application.tasks(name: String)
+GET		/tasks						controllers.Application.tasks(name: String ?= "")
 POST	/createTask/:name			controllers.Application.createTask(name)
-POST	/updateTask/:id				controllers.Application.updateTask(id)
+DELETE	/deleteTask/:id				controllers.Application.deleteTask(id)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

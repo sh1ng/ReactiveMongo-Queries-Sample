@@ -1,6 +1,14 @@
 @()
 
-@main("Welcome to Play") {
+@import helper._
 
+@main("Welcome to Play") {
+	@form(routes.Application.tasks()) {
+        
+        <input type="text" name ="name" title="Please sumbit your name" /> 
+        
+        <input type="submit" value="Create" />
+        
+    }
 
 }

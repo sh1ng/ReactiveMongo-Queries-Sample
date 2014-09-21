@@ -2,9 +2,13 @@ package controllers
 
 import play.api._
 import play.api.mvc._
+import play.api.data._
+import play.api.data.Forms._
+import play.api.data.format.Formats._
 import org.joda.time._
 import reactivemongo.queries.Query._
 import reactivemongo.api._
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import reactivemongo.bson._
 
@@ -21,7 +25,17 @@ object Application extends Controller {
   
   implicit val taskHandler = Macros.handler[Task]
   
-  case class Task(id: String, name: String, label: String, text: String, createdAt: DateTime, actionDate: DateTime)
+  case class Task(id: String, name: String, label: String, createdAt: DateTime, actionDate: DateTime)
+  
+  val taskForm = Form(
+    tuple(
+      "name" -> text,
+      "password" -> text
+    ) 
+  )
+  
+  def allTasks(name: String) = 
+    collection.find(on[Task].eq(_.name, name)).sort(on[Task].sortAsc(_.actionDate)).cursor[Task].collect[List]()
 
   def index = Action{
     Ok(views.html.index())
@@ -29,11 +43,23 @@ object Application extends Controller {
   
   def tasks(name: String) = Action.async {
     for{
-      tasks <- collection.find(on[Task].eq(_.name, name)).sort(on[Task].sortAsc(_.actionDate)).cursor[Task].collect[List]()
-    } yield Ok(views.html.tasks(tasks))
+      tasks <- allTasks(name) 
+    } yield Ok(views.html.tasks(tasks, name, taskForm))
   }
   
-  def createTask(name: String) = TODO
+  def createTask(name: String) = Action.async { implicit request =>
+  taskForm.bindFromRequest.fold(
+    errors => allTasks(name).map(p => BadRequest(views.html.tasks(p , name, errors))),
+    form => {
+      val task = Task(BSONObjectID.generate.stringify, name, form._1,
+          DateTime.now(), DateTime.parse(form._2))
+      collection.insert(task).map(p=>Redirect(routes.Application.tasks(name)))
+      })
+  }
   
-  def updateTask(id: String) = TODO
+ def deleteTask(name: String, id: String) = Action.async {
+   for{
+     delete <- collection.remove(on[Task].eq(_.id, id))
+   } yield Redirect(routes.Application.tasks(name))
+ } 
 }
