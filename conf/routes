@@ -6,7 +6,7 @@
 GET     /                           controllers.Application.index
 GET		/tasks						controllers.Application.tasks(name: String ?= "")
 POST	/createTask/:name			controllers.Application.createTask(name)
-DELETE	/deleteTask/:id				controllers.Application.deleteTask(id)
+POST	/deleteTask					controllers.Application.deleteTask(name, id)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

@@ -6,6 +6,7 @@ import play.api.data._
 import play.api.data.Forms._
 import play.api.data.format.Formats._
 import org.joda.time._
+import org.joda.time.format._
 import reactivemongo.queries.Query._
 import reactivemongo.api._
 import scala.concurrent.Future
@@ -29,8 +30,8 @@ object Application extends Controller {
   
   val taskForm = Form(
     tuple(
-      "name" -> text,
-      "password" -> text
+      "label" -> text,
+      "actionDate" -> text
     ) 
   )
   
@@ -52,7 +53,7 @@ object Application extends Controller {
     errors => allTasks(name).map(p => BadRequest(views.html.tasks(p , name, errors))),
     form => {
       val task = Task(BSONObjectID.generate.stringify, name, form._1,
-          DateTime.now(), DateTime.parse(form._2))
+          DateTime.now(), DateTime.parse(form._2, DateTimeFormat.forPattern("MM/dd/yyyy")))
       collection.insert(task).map(p=>Redirect(routes.Application.tasks(name)))
       })
   }

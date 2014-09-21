@@ -14,7 +14,8 @@
             	
                 @task.label
                 
-                @form(routes.Application.deleteTask(task.id)) {
+                @form(routes.Application.deleteTask(name, task.id)) {
+                	
                     <input type="submit" value="Delete">
                 }
             </li>
@@ -26,7 +27,7 @@
     @form(routes.Application.createTask(name)) {
         
         @inputText(taskForm("label"))
-        @inputText(taskForm("actionDate"))  
+        @inputText(taskForm("actionDate"), 'id -> "datepicker")  
         
         <input type="submit" value="Create">
     }
